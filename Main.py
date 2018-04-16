@@ -72,18 +72,18 @@ for i in range(len(testCoords)):
       vote[8] += 1
     elif (trainLabels[nearestNeighbors[j][1]] == 9):
       vote[9] += 1
-    #the result of the vote
-    guess = vote.index(max(vote))
+  #the result of the vote
+  guess = vote.index(max(vote))
     
-    #display number and guess
-    print(mndata.display(testImages[i]))
-    print("Guess: ")
-    print(guess)
+  #display number and guess
+  print(mndata.display(testImages[i]))
+  print("Guess: ")
+  print(guess)
     
-    #add to stats
-    if (guess == testLabels[i]):
-      correct += 1
-    else:
-      wrong += 1
+  #add to stats
+  if (guess == testLabels[i]):
+    correct += 1
+  else:
+    wrong += 1
 print("Accuracy: ")
 print(correct / (correct + wrong))
