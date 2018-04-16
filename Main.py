@@ -40,7 +40,7 @@ correct = 0
 wrong = 0
 
 #compute the projection of the testing set onto the pca found before
-testCoords = numpy.matmul(testImages - testImages.mean(axis=0), numpy.linalg.inv(vt))
+testCoords = numpy.matmul(testImages - trainImages.mean(axis=0), numpy.linalg.inv(vt))
 testCoords = testCoords[:, 0:(numComponents - 1)]
 
 for i in range(len(testCoords)):
