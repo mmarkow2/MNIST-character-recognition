@@ -15,8 +15,19 @@ testImages = numpy.asarray(testImages)
 #compute the singular value decomposition of the matrix
 u, s, vt = numpy.linalg.svd(trainImages - trainImages.mean(axis=0), full_matrices=False);
 
+#compute how many components should be used to achieve at least 95 % of the variance
+numComponents = 0
+runningTotal = 0;
+totalEig = sum(s)
+
+for eigenvalue in s:
+  runningTotal += eigenvalue
+  numComponents += 1
+  if (runningTotal / totalEig > 0.95):
+    break
 #compute the coordinate matrix
 trainCoords = numpy.matmul(u, numpy.diag(s))
+trainCoords = trainCoords[:, 0:(numComponents - 1)]
 
 #sample coordinate conversion
 #numpy.matmul(numpy.transpose(vt) , numpy.transpose(coords[100])) + images.mean(axis=0)
@@ -30,6 +41,7 @@ wrong = 0
 
 #compute the projection of the testing set onto the pca found before
 testCoords = numpy.matmul(testImages - testImages.mean(axis=0), numpy.linalg.inv(vt))
+testCoords = testCoords[:, 0:(numComponents - 1)]
 
 for i in range(len(testCoords)):
   #array to track the k nearest neighbors
