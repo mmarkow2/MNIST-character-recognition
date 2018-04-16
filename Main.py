@@ -33,7 +33,7 @@ trainCoords = trainCoords[:, 0:(numComponents - 1)]
 #numpy.matmul(numpy.transpose(vt) , numpy.transpose(coords[100])) + images.mean(axis=0)
 
 #training
-k = 10
+k = 100
 
 #testing
 correct = 0
