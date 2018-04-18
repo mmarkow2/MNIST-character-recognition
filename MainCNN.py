@@ -1,9 +1,17 @@
 from mnist import MNIST
 import numpy
+import numpy.matlib
 
+# sigmoid(x) = 1 / (1 + e^(-x))
 def sigmoid(vector):
   for i in range(len(vector)):
     vector[i] = 1/numpy.exp(-(vector[i]))
+  return vector
+
+# sigmoidDerivative(x) = e^(-x) / (1 + e^(-x))^2
+def sigmoidDerivative(vector):
+  for i in range(len(vector)):
+    vector[i] = numpy.exp(-(vector[i]))/((1 + numpy.exp(-(vector[i]))) * (1 + numpy.exp(-(vector[i]))))
   return vector
 
 mndata = MNIST('Data')
@@ -30,13 +38,36 @@ layer2biases = numpy.zeros((16, 1))
 finalLayerWeights = numpy.zeros((10, 16))
 finalLayerbiases = numpy.zeros((10, 1))
 
+for i in range(len(trainImages)):
+  #convert the current image to a column vector
+  curImage = numpy.transpose(numpy.asmatrix(trainImages[i]))
+  
+  #compute output
+  layer1activations = numpy.add(numpy.matmul(layer1weights, curImage), layer1biases)
+  layer2activations = numpy.add(numpy.matmul(layer2weights, sigmoid(layer1activations)), layer2biases)
+  outputactivations = numpy.add(numpy.matmul(finalLayerWeights, sigmoid(layer2activations)), finalLayerbiases)
+  
+  #expected output (all elements 0 except the correct output)
+  outputExpected = numpy.zeros((10, 1))
+  outputExpected[trainImages[i][0]] = 1
+  
+  #compute the gradient of the previous layer's weights
+  outputActivationDerivatives = numpy.subtract(sigmoid(outputactivations), outputExpected)
+  outputSigmoidDerivatives = sigmoidDerivative(outputactivations)
+  
+  outputBiasGradient = numpy.multiply(outputActivationDerivatives, outputSigmoidDerivatives)
+  outputWeightGradient = numpy.multiply(numpy.matlib.repmat(outputBiasGradient, 1, finalLayerWeights.shape[1]), finalLayerWeights)
+
 #testing
 correct = 0
 wrong = 0
 
-for i in range(testImages.shape[0]):
+for i in range(len(testImages)):
+  #convert the current image to a column vector
+  curImage = numpy.transpose(numpy.asmatrix(testImages[i]))
+  
   #compute output
-  layer1output = sigmoid(numpy.add(numpy.matmul(layer1weights, numpy.transpose(testImages[i])), layer1biases))
+  layer1output = sigmoid(numpy.add(numpy.matmul(layer1weights, curImage), layer1biases))
   layer2output = sigmoid(numpy.add(numpy.matmul(layer2weights, layer1output), layer2biases))
   output = sigmoid(numpy.add(numpy.matmul(finalLayerWeights, layer2output), finalLayerbiases))
   
