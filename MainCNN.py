@@ -12,15 +12,15 @@ mndata = MNIST('Data')
 trainImages, trainLabels = mndata.load_training()
 testImages, testLabels = mndata.load_testing()
 
-#convert images to matrices in order to simplify computations
-trainImages = numpy.asmatrix(trainImages)
-testImages = numpy.asmatrix(testImages)
+#convert images to arrays in order to simplify computations
+trainImages = numpy.asarray(trainImages)
+testImages = numpy.asarray(testImages)
 
 #Advanced classifier
 
 #training
 #initialize the two hidden layers
-layer1weights = numpy.zeros((16, trainImages[0].shape[1]))
+layer1weights = numpy.zeros((16, len(trainImages[0])))
 layer1biases = numpy.zeros((16, 1))
 
 layer2weights = numpy.zeros((16, 16))
