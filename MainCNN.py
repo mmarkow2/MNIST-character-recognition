@@ -43,7 +43,7 @@ for i in range(testImages.shape[0]):
   guess = output.argmax()
   
   #display number and guess
-  print(mndata.display(testImages.tolist()[i]))
+  print(mndata.display(testImages[i]))
   print("Guess: ")
   print(guess)
     
