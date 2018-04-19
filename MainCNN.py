@@ -41,6 +41,11 @@ finalLayerWeights = 0.01 * numpy.random.randn(10, 16)
 finalLayerbiases = 0.01 * numpy.random.randn(10, 1)
 
 for i in range(len(trainImages)):
+  #progress bar
+  percentComplete = int(float(i) / len(trainImages) * 100)
+  
+  print("-" * percentComplete + " " + str(percentComplete) + "%", end="\r")
+  
   #convert the current image to a column vector
   curImage = numpy.transpose(numpy.asmatrix(trainImages[i]))
   
