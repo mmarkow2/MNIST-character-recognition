@@ -49,7 +49,7 @@ for i in range(len(trainImages)):
   
   #expected output (all elements 0 except the correct output)
   outputExpected = numpy.zeros((10, 1))
-  outputExpected[trainImages[i][0]] = 1
+  outputExpected[trainLabels[i]] = 1
   
   #compute the gradient of the previous layer's weights
   outputActivationDerivatives = numpy.subtract(sigmoid(outputactivations), outputExpected)
