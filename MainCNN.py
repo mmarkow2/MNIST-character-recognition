@@ -57,7 +57,7 @@ for i in range(len(trainImages)):
   
   #results for output layer
   outputBiasGradient = numpy.multiply(outputActivationDerivatives, outputSigmoidDerivatives)
-  outputWeightGradient = numpy.multiply(numpy.matlib.repmat(outputBiasGradient, 1, finalLayerWeights.shape[1]), finalLayerWeights)
+  outputWeightGradient = numpy.multiply(numpy.matlib.repmat(outputBiasGradient, 1, finalLayerWeights.shape[1]), numpy.matlib.repmat(sigmoid(outputactivations), 1 , finalLayerWeights.shape[1]))
   
   #backpropagate to layer 2
   #compute the gradient of the previous layer's weights
@@ -66,7 +66,7 @@ for i in range(len(trainImages)):
   
   #results for layer 2
   layer2BiasGradient = numpy.multiply(layer2ActivationDerivatives, layer2SigmoidDerivatives)
-  layer2WeightGradient = numpy.multiply(numpy.matlib.repmat(layer2BiasGradient, 1, layer2weights.shape[1]), layer2weights)
+  layer2WeightGradient = numpy.multiply(numpy.matlib.repmat(layer2BiasGradient, 1, layer2weights.shape[1]), numpy.matlib.repmat(sigmoid(layer2activations), 1 , layer2weights.shape[1]))
   
   #backpropagate to layer 1
   layer1ActivationDerivatives = numpy.transpose(numpy.matmul(numpy.transpose(layer2BiasGradient), layer2weights))
@@ -74,7 +74,7 @@ for i in range(len(trainImages)):
   
   #results for layer 1
   layer1BiasGradient = numpy.multiply(layer1ActivationDerivatives, layer1SigmoidDerivatives)
-  layer1WeightGradient = numpy.multiply(numpy.matlib.repmat(layer1BiasGradient, 1, layer1weights.shape[1]), layer1weights)
+  layer1WeightGradient = numpy.multiply(numpy.matlib.repmat(layer1BiasGradient, 1, layer1weights.shape[1]), numpy.matlib.repmat(sigmoid(layer1activations), 1 , layer1weights.shape[1]))
   
   #add the gradients to the neurons
   layer1weights = numpy.subtract(layer1weights, layer1WeightGradient)
