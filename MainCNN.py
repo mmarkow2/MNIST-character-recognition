@@ -40,7 +40,7 @@ layer2biases = 0.01 * numpy.random.randn(16, 1)
 finalLayerWeights = 0.01 * numpy.random.randn(10, 16)
 finalLayerbiases = 0.01 * numpy.random.randn(10, 1)
 
-for i in range(1000):
+for i in range(len(trainImages)):
   #convert the current image to a column vector
   curImage = numpy.transpose(numpy.asmatrix(trainImages[i]))
   
