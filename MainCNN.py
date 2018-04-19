@@ -5,7 +5,7 @@ import numpy.matlib
 # sigmoid(x) = 1 / (1 + e^(-x))
 def sigmoid(vector):
   for i in range(len(vector)):
-    vector[i] = 1/numpy.exp(-(vector[i]))
+    vector[i] = 1/(1 + numpy.exp(-(vector[i])))
   return vector
 
 # sigmoidDerivative(x) = e^(-x) / (1 + e^(-x))^2
