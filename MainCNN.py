@@ -16,6 +16,8 @@ def sigmoidDerivative(vector):
 
 mndata = MNIST('Data')
 
+LEARNING_RATE = 0.01
+
 #load images
 trainImages, trainLabels = mndata.load_training()
 testImages, testLabels = mndata.load_testing()
@@ -38,7 +40,7 @@ layer2biases = 0.01 * numpy.random.randn(16, 1)
 finalLayerWeights = 0.01 * numpy.random.randn(10, 16)
 finalLayerbiases = 0.01 * numpy.random.randn(10, 1)
 
-for i in range(len(trainImages)):
+for i in range(1000):
   #convert the current image to a column vector
   curImage = numpy.transpose(numpy.asmatrix(trainImages[i]))
   
@@ -76,16 +78,15 @@ for i in range(len(trainImages)):
   layer1BiasGradient = numpy.multiply(layer1ActivationDerivatives, layer1SigmoidDerivatives)
   layer1WeightGradient = numpy.matmul(layer1BiasGradient, numpy.transpose(sigmoid(curImage)))
   
-  #add the gradients to the neurons
-  layer1weights = numpy.subtract(layer1weights, layer1WeightGradient)
-  layer1biases = numpy.subtract(layer1biases, layer1BiasGradient)
+  #subtract the gradients from the neurons
+  layer1weights = numpy.subtract(layer1weights, LEARNING_RATE * layer1WeightGradient)
+  layer1biases = numpy.subtract(layer1biases, LEARNING_RATE * layer1BiasGradient)
 
-  layer2weights = numpy.subtract(layer2weights, layer2WeightGradient)
-  layer2biases = numpy.subtract(layer2biases, layer2BiasGradient)
+  layer2weights = numpy.subtract(layer2weights, LEARNING_RATE * layer2WeightGradient)
+  layer2biases = numpy.subtract(layer2biases, LEARNING_RATE * layer2BiasGradient)
 
-  #initialize output layer
-  finalLayerWeights = numpy.subtract(finalLayerWeights, outputWeightGradient)
-  finalLayerbiases = numpy.subtract(finalLayerbiases, outputBiasGradient)
+  finalLayerWeights = numpy.subtract(finalLayerWeights, LEARNING_RATE * outputWeightGradient)
+  finalLayerbiases = numpy.subtract(finalLayerbiases, LEARNING_RATE * outputBiasGradient)
   
   
 
