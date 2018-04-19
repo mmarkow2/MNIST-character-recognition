@@ -28,15 +28,15 @@ testImages = numpy.asarray(testImages)
 
 #training
 #initialize the two hidden layers
-layer1weights = numpy.zeros((16, len(trainImages[0])))
-layer1biases = numpy.zeros((16, 1))
+layer1weights = 0.01 * numpy.random.randn(16, len(trainImages[0]))
+layer1biases = 0.01 * numpy.random.randn(16, 1)
 
-layer2weights = numpy.zeros((16, 16))
-layer2biases = numpy.zeros((16, 1))
+layer2weights = 0.01 * numpy.random.randn(16, 16)
+layer2biases = 0.01 * numpy.random.randn(16, 1)
 
 #initialize output layer
-finalLayerWeights = numpy.zeros((10, 16))
-finalLayerbiases = numpy.zeros((10, 1))
+finalLayerWeights = 0.01 * numpy.random.randn(10, 16)
+finalLayerbiases = 0.01 * numpy.random.randn(10, 1)
 
 for i in range(len(trainImages)):
   #convert the current image to a column vector
