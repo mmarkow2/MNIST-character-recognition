@@ -1,6 +1,5 @@
 from mnist import MNIST
 import numpy
-import numpy.matlib
 from scipy.special import expit
 
 # sigmoid(x) = 1 / (1 + e^(-x))
