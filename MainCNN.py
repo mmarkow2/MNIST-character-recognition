@@ -1,17 +1,18 @@
 from mnist import MNIST
 import numpy
 import numpy.matlib
+from scipy.special import expit
 
 # sigmoid(x) = 1 / (1 + e^(-x))
 def sigmoid(vector):
   for i in range(len(vector)):
-    vector[i] = 1/(1 + numpy.exp(-(vector[i])))
+    vector[i] = expit(vector[i])
   return vector
 
 # sigmoidDerivative(x) = e^(-x) / (1 + e^(-x))^2
 def sigmoidDerivative(vector):
   for i in range(len(vector)):
-    vector[i] = numpy.exp(-(vector[i]))/((1 + numpy.exp(-(vector[i]))) * (1 + numpy.exp(-(vector[i]))))
+    vector[i] = expit(vector[i]) * (1-expit(vector[i]))
   return vector
 
 mndata = MNIST('Data')
