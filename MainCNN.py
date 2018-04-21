@@ -19,6 +19,7 @@ mndata = MNIST('Data')
 
 LEARNING_RATE = 0.02
 BATCH_SIZE = 32
+LAYER_ARRAY = [16, 16, 10]
 
 #load images
 trainImages, trainLabels = mndata.load_training()
@@ -31,24 +32,30 @@ testImages = numpy.asarray(testImages)
 #Advanced classifier
 
 #training
-#initialize the two hidden layers
-layer1weights = 0.5 * numpy.random.randn(16, len(trainImages[0]))
-layer1biases = numpy.zeros((16, 1))
+#initialize the layers
+layerNum = 0
+layerweights = [0] * len(LAYER_ARRAY)
+layerbiases = [0] * len(LAYER_ARRAY)
+for num in LAYER_ARRAY:
+  if layerNum == 0:
+    layerweights[layerNum] = 0.5 * numpy.random.randn(num, len(trainImages[0]))
+  else:
+    layerweights[layerNum] = 0.5 * numpy.random.randn(num, layerweights[layerNum - 1].shape[0])
+  layerbiases[layerNum] = numpy.zeros((num, 1))
+  layerNum = layerNum + 1
 
-layer2weights = 0.5 * numpy.random.randn(16, 16)
-layer2biases = numpy.zeros((16, 1))
+#initialize activations array
+activations = [0] * len(LAYER_ARRAY)
 
-#initialize output layer
-finalLayerWeights = 0.5 * numpy.random.randn(10, 16)
-finalLayerbiases = numpy.zeros((10, 1))
+#gradients
+biasGradient = [0] * len(LAYER_ARRAY)
+weightGradient = [0] * len(LAYER_ARRAY)
+activationDerivatives = [0] * len(LAYER_ARRAY)
 
 for i in range(0, len(trainImages), BATCH_SIZE):
-  outputBiasGradientSUM = 0
-  outputWeightGradientSUM = 0
-  layer2BiasGradientSUM = 0
-  layer2WeightGradientSUM = 0
-  layer1BiasGradientSUM = 0
-  layer1WeightGradientSUM = 0
+  #gradient sums (used for batches)
+  biasGradientSUM = [0] * len(LAYER_ARRAY)
+  weightGradientSUM = [0] * len(LAYER_ARRAY)
   
   for j in range(i, i + BATCH_SIZE):
     #progress bar
@@ -60,56 +67,38 @@ for i in range(0, len(trainImages), BATCH_SIZE):
     curImage = numpy.transpose(numpy.asmatrix(trainImages[j]))
   
     #compute output
-    layer1activations = numpy.add(numpy.matmul(layer1weights, curImage), layer1biases)
-    layer2activations = numpy.add(numpy.matmul(layer2weights, sigmoid(layer1activations)), layer2biases)
-    outputactivations = numpy.add(numpy.matmul(finalLayerWeights, sigmoid(layer2activations)), finalLayerbiases)
+    activations[0] = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
+    for k in range(1, len(LAYER_ARRAY)):
+      activations[k] = numpy.add(numpy.matmul(layerweights[k], sigmoid(activations[k - 1])), layerbiases[k])
   
     #expected output (all elements 0 except the correct output)
-    outputExpected = numpy.zeros((10, 1))
+    outputExpected = numpy.zeros((LAYER_ARRAY[len(LAYER_ARRAY) - 1], 1))
     outputExpected[trainLabels[j]] = 1
-  
-    #compute the gradient of the previous layer's weights
-    outputActivationDerivatives = numpy.subtract(sigmoid(outputactivations), outputExpected)
-    outputSigmoidDerivatives = sigmoidDerivative(outputactivations)
-  
-    #results for output layer
-    outputBiasGradient = numpy.multiply(outputActivationDerivatives, outputSigmoidDerivatives)
-    outputWeightGradient = numpy.matmul(outputBiasGradient, numpy.transpose(sigmoid(layer2activations)))
-  
-    #backpropagate to layer 2
-    #compute the gradient of the previous layer's weights
-    layer2ActivationDerivatives = numpy.matmul(numpy.transpose(finalLayerWeights), outputBiasGradient)
-    layer2SigmoidDerivatives = sigmoidDerivative(layer2activations)
-
-    #results for layer 2
-    layer2BiasGradient = numpy.multiply(layer2ActivationDerivatives, layer2SigmoidDerivatives)
-    layer2WeightGradient = numpy.matmul(layer2BiasGradient, numpy.transpose(sigmoid(layer1activations)))
-
-    #backpropagate to layer 1
-    layer1ActivationDerivatives = numpy.matmul(numpy.transpose(layer2weights), layer2BiasGradient)
-    layer1SigmoidDerivatives = sigmoidDerivative(layer1activations)
-
-    #results for layer 1
-    layer1BiasGradient = numpy.multiply(layer1ActivationDerivatives, layer1SigmoidDerivatives)
-    layer1WeightGradient = numpy.matmul(layer1BiasGradient, numpy.transpose(sigmoid(curImage)))
     
-    #sum up the gradient
-    outputBiasGradientSUM = outputBiasGradientSUM + outputBiasGradient
-    outputWeightGradientSUM = outputWeightGradientSUM + outputWeightGradient
-    layer2BiasGradientSUM = layer2BiasGradientSUM + layer2BiasGradient
-    layer2WeightGradientSUM = layer2WeightGradientSUM + layer2WeightGradient
-    layer1BiasGradientSUM = layer1BiasGradientSUM + layer1BiasGradient
-    layer1WeightGradientSUM = layer1WeightGradientSUM + layer1WeightGradient
+    for k in reversed(range(0, len(LAYER_ARRAY))):
+      #compute the gradient of the previous layer's weights
+      if k == len(LAYER_ARRAY) - 1:
+        #compute the expected minus the output
+        activationDerivatives[k] = numpy.subtract(sigmoid(activations[k]), outputExpected)
+      else:
+        #backpropagate
+        activationDerivatives[k] = numpy.matmul(numpy.transpose(layerweights[k + 1]), biasGradient[k + 1])
+        
+      sigmoidDerivatives = sigmoidDerivative(activations[k])
+      biasGradient[k] = numpy.multiply(activationDerivatives[k], sigmoidDerivatives[k])
+      if (k == 0):
+        weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(sigmoid(curImage)))
+      else:
+        weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(sigmoid(activations[k-1])))
+    
+      #sum up the gradient
+      biasGradientSUM[k] = biasGradientSUM[k] + biasGradient[k]
+      weightGradientSUM[k] = weightGradientSUM[k] + weightGradient[k]
 
   #subtract the gradients from the neurons
-  layer1weights = numpy.subtract(layer1weights, LEARNING_RATE * layer1WeightGradientSUM)
-  layer1biases = numpy.subtract(layer1biases, LEARNING_RATE * layer1BiasGradientSUM)
-
-  layer2weights = numpy.subtract(layer2weights, LEARNING_RATE * layer2WeightGradientSUM)
-  layer2biases = numpy.subtract(layer2biases, LEARNING_RATE * layer2BiasGradientSUM)
-
-  finalLayerWeights = numpy.subtract(finalLayerWeights, LEARNING_RATE * outputWeightGradientSUM)
-  finalLayerbiases = numpy.subtract(finalLayerbiases, LEARNING_RATE * outputBiasGradientSUM)
+  for j in range(len(LAYER_ARRAY)):
+    layerweights[j] = numpy.subtract(layerweights[j], LEARNING_RATE * weightGradientSUM[j])
+    layerbiases[j] = numpy.subtract(layerbiases[j], LEARNING_RATE * biasGradientSUM[j])
   
   
 
@@ -122,11 +111,11 @@ for i in range(len(testImages)):
   curImage = numpy.transpose(numpy.asmatrix(testImages[i]))
   
   #compute output
-  layer1output = sigmoid(numpy.add(numpy.matmul(layer1weights, curImage), layer1biases))
-  layer2output = sigmoid(numpy.add(numpy.matmul(layer2weights, layer1output), layer2biases))
-  output = sigmoid(numpy.add(numpy.matmul(finalLayerWeights, layer2output), finalLayerbiases))
+  output = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
+  for k in range(1, len(LAYER_ARRAY)):
+    output = numpy.add(numpy.matmul(layerweights[k], sigmoid(output)), layerbiases[k])
   
-  guess = output.argmax()
+  guess = sigmoid(output).argmax()
   
   #display number and guess
   print(mndata.display(testImages[i]))
