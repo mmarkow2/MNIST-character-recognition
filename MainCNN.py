@@ -33,14 +33,14 @@ testImages = numpy.asarray(testImages)
 #training
 #initialize the two hidden layers
 layer1weights = 0.01 * numpy.random.randn(16, len(trainImages[0]))
-layer1biases = 0.01 * numpy.random.randn(16, 1)
+layer1biases = numpy.zeros((16, 1))
 
 layer2weights = 0.01 * numpy.random.randn(16, 16)
-layer2biases = 0.01 * numpy.random.randn(16, 1)
+layer2biases = numpy.zeros((16, 1))
 
 #initialize output layer
 finalLayerWeights = 0.01 * numpy.random.randn(10, 16)
-finalLayerbiases = 0.01 * numpy.random.randn(10, 1)
+finalLayerbiases = numpy.zeros((10, 1))
 
 for i in range(0, len(trainImages), BATCH_SIZE):
   outputBiasGradientSUM = 0
