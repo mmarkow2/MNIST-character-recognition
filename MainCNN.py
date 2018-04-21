@@ -68,7 +68,7 @@ for i in range(len(trainImages)):
   
   #backpropagate to layer 2
   #compute the gradient of the previous layer's weights
-  layer2ActivationDerivatives = numpy.transpose(numpy.matmul(numpy.transpose(outputBiasGradient), finalLayerWeights))
+  layer2ActivationDerivatives = numpy.matmul(numpy.transpose(finalLayerWeights), outputBiasGradient)
   layer2SigmoidDerivatives = sigmoidDerivative(layer2activations)
   
   #results for layer 2
@@ -76,7 +76,7 @@ for i in range(len(trainImages)):
   layer2WeightGradient = numpy.matmul(layer2BiasGradient, numpy.transpose(sigmoid(layer1activations)))
   
   #backpropagate to layer 1
-  layer1ActivationDerivatives = numpy.transpose(numpy.matmul(numpy.transpose(layer2BiasGradient), layer2weights))
+  layer1ActivationDerivatives = numpy.matmul(numpy.transpose(layer2weights), layer2BiasGradient)
   layer1SigmoidDerivatives = sigmoidDerivative(layer1activations)
   
   #results for layer 1
