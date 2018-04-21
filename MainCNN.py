@@ -20,6 +20,8 @@ mndata = MNIST('Data')
 LEARNING_RATE = 0.02
 BATCH_SIZE = 32
 LAYER_ARRAY = [16, 16, 10]
+TARGET_ACCURACY = 0.95
+MAXIMUM_EPOCHS = 20
 
 #load images
 trainImages, trainLabels = mndata.load_training()
@@ -52,55 +54,89 @@ biasGradient = [0] * len(LAYER_ARRAY)
 weightGradient = [0] * len(LAYER_ARRAY)
 activationDerivatives = [0] * len(LAYER_ARRAY)
 
-for i in range(0, len(trainImages), BATCH_SIZE):
-  #gradient sums (used for batches)
-  biasGradientSUM = [0] * len(LAYER_ARRAY)
-  weightGradientSUM = [0] * len(LAYER_ARRAY)
-  
-  for j in range(i, i + BATCH_SIZE):
-    #progress bar
-    percentComplete = int(float(j) / len(trainImages) * 100)
-  
-    print("-" * percentComplete + " " + str(percentComplete) + "%", end="\r")
-  
-    #convert the current image to a column vector
-    curImage = numpy.transpose(numpy.asmatrix(trainImages[j]))
-  
-    #compute output
-    activations[0] = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
-    for k in range(1, len(LAYER_ARRAY)):
-      activations[k] = numpy.add(numpy.matmul(layerweights[k], sigmoid(activations[k - 1])), layerbiases[k])
-  
-    #expected output (all elements 0 except the correct output)
-    outputExpected = numpy.zeros((LAYER_ARRAY[len(LAYER_ARRAY) - 1], 1))
-    outputExpected[trainLabels[j]] = 1
-    
-    for k in reversed(range(0, len(LAYER_ARRAY))):
-      #compute the gradient of the previous layer's weights
-      if k == len(LAYER_ARRAY) - 1:
-        #compute the expected minus the output
-        activationDerivatives[k] = numpy.subtract(sigmoid(activations[k]), outputExpected)
-      else:
-        #backpropagate
-        activationDerivatives[k] = numpy.matmul(numpy.transpose(layerweights[k + 1]), biasGradient[k + 1])
-        
-      sigmoidDerivatives = sigmoidDerivative(activations[k])
-      biasGradient[k] = numpy.multiply(activationDerivatives[k], sigmoidDerivatives[k])
-      if (k == 0):
-        weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(sigmoid(curImage)))
-      else:
-        weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(sigmoid(activations[k-1])))
-    
-      #sum up the gradient
-      biasGradientSUM[k] = biasGradientSUM[k] + biasGradient[k]
-      weightGradientSUM[k] = weightGradientSUM[k] + weightGradient[k]
+shouldTrain = True
 
-  #subtract the gradients from the neurons
-  for j in range(len(LAYER_ARRAY)):
-    layerweights[j] = numpy.subtract(layerweights[j], LEARNING_RATE * weightGradientSUM[j])
-    layerbiases[j] = numpy.subtract(layerbiases[j], LEARNING_RATE * biasGradientSUM[j])
+#number of epochs
+numEpochs = 0
+
+while shouldTrain:
+  for i in range(0, len(trainImages), BATCH_SIZE):
+    #gradient sums (used for batches)
+    biasGradientSUM = [0] * len(LAYER_ARRAY)
+    weightGradientSUM = [0] * len(LAYER_ARRAY)
+
+    for j in range(i, i + BATCH_SIZE):
+      #progress bar
+      percentComplete = int(float(j) / len(trainImages) * 100)
+
+      print("-" * percentComplete + " " + str(percentComplete) + "%", end="\r")
+
+      #convert the current image to a column vector
+      curImage = numpy.transpose(numpy.asmatrix(trainImages[j]))
+
+      #compute output
+      activations[0] = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
+      for k in range(1, len(LAYER_ARRAY)):
+        activations[k] = numpy.add(numpy.matmul(layerweights[k], sigmoid(activations[k - 1])), layerbiases[k])
+
+      #expected output (all elements 0 except the correct output)
+      outputExpected = numpy.zeros((LAYER_ARRAY[len(LAYER_ARRAY) - 1], 1))
+      outputExpected[trainLabels[j]] = 1
+
+      for k in reversed(range(0, len(LAYER_ARRAY))):
+        #compute the gradient of the previous layer's weights
+        if k == len(LAYER_ARRAY) - 1:
+          #compute the expected minus the output
+          activationDerivatives[k] = numpy.subtract(sigmoid(activations[k]), outputExpected)
+        else:
+          #backpropagate
+          activationDerivatives[k] = numpy.matmul(numpy.transpose(layerweights[k + 1]), biasGradient[k + 1])
+
+        sigmoidDerivatives = sigmoidDerivative(activations[k])
+        biasGradient[k] = numpy.multiply(activationDerivatives[k], sigmoidDerivatives[k])
+        if (k == 0):
+          weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(sigmoid(curImage)))
+        else:
+          weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(sigmoid(activations[k-1])))
+
+        #sum up the gradient
+        biasGradientSUM[k] = biasGradientSUM[k] + biasGradient[k]
+        weightGradientSUM[k] = weightGradientSUM[k] + weightGradient[k]
+
+    #subtract the gradients from the neurons
+    for j in range(len(LAYER_ARRAY)):
+      layerweights[j] = numpy.subtract(layerweights[j], LEARNING_RATE * weightGradientSUM[j])
+      layerbiases[j] = numpy.subtract(layerbiases[j], LEARNING_RATE * biasGradientSUM[j])
   
+  numEpochs = numEpochs + 1
+  print("Epoch " + str(numEpochs) + " Complete")
+  print("Testing accuracy")
   
+  #Get a subset of test images to test accuracy
+  indexes = numpy.random.randint(trainImages.shape[0], size=1000)
+  subsetImages = trainImages[indexes]
+  subsetLabels = trainLabels[indexes]
+  
+  #testing accuracy
+  correct = 0
+  wrong = 0
+  
+  for i in range(len(subsetImages)):
+    output = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
+    for k in range(1, len(LAYER_ARRAY)):
+      output = numpy.add(numpy.matmul(layerweights[k], sigmoid(output)), layerbiases[k])
+    guess = sigmoid(output).argmax()
+    if (guess == testLabels[i]):
+      correct += 1
+    else:
+      wrong += 1
+      
+  #if the accuracy was achieved or if we have taken over the maximum number of times, terminate
+  if ((correct/(correct + wrong)) > TARGET_ACCURACY or numEpochs > MAXIMUM_EPOCHS):
+    shouldTrain = False
+    print("Target accuracy achieved or max time reached")
+  else:
+    print("Target accuracy not achieved")
 
 #testing
 correct = 0
