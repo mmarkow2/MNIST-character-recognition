@@ -113,19 +113,17 @@ while shouldTrain:
   
   #Get a subset of test images to test accuracy
   indexes = numpy.random.randint(trainImages.shape[0], size=1000)
-  subsetImages = trainImages[indexes]
-  subsetLabels = trainLabels[indexes]
   
   #testing accuracy
   correct = 0
   wrong = 0
   
-  for i in range(len(subsetImages)):
-    output = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
+  for i in range(len(indexes)):
+    output = numpy.add(numpy.matmul(layerweights[0], trainImages[indexes[i]]), layerbiases[0])
     for k in range(1, len(LAYER_ARRAY)):
       output = numpy.add(numpy.matmul(layerweights[k], sigmoid(output)), layerbiases[k])
     guess = sigmoid(output).argmax()
-    if (guess == testLabels[i]):
+    if (guess == trainLabels[indexes[i]]):
       correct += 1
     else:
       wrong += 1
