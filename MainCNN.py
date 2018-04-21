@@ -18,9 +18,9 @@ mndata = MNIST('Data')
 
 LEARNING_RATE = 0.02
 BATCH_SIZE = 32
-LAYER_ARRAY = [16, 16, 10]
-TARGET_ACCURACY = 0.95
-MAXIMUM_EPOCHS = 20
+LAYER_ARRAY = [500, 150, 10]
+TARGET_ACCURACY = 0.90
+MAXIMUM_EPOCHS = 5
 
 #load images
 trainImages, trainLabels = mndata.load_training()
@@ -129,7 +129,7 @@ while shouldTrain:
       wrong += 1
       
   #if the accuracy was achieved or if we have taken over the maximum number of times, terminate
-  if ((correct/(correct + wrong)) > TARGET_ACCURACY or numEpochs > MAXIMUM_EPOCHS):
+  if ((correct/(correct + wrong)) > TARGET_ACCURACY or numEpochs >= MAXIMUM_EPOCHS):
     shouldTrain = False
     print("Target accuracy achieved or max time reached")
   else:
