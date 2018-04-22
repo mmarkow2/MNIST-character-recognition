@@ -81,7 +81,7 @@ while shouldTrain:
 
       #expected output (all elements 0 except the correct output)
       outputExpected = numpy.zeros((LAYER_ARRAY[len(LAYER_ARRAY) - 1], 1))
-      outputExpected[trainLabels[order[j]] = 1
+      outputExpected[trainLabels[order[j]]] = 1
 
       for k in reversed(range(0, len(LAYER_ARRAY))):
         #compute the gradient of the previous layer's weights
