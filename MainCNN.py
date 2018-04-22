@@ -66,7 +66,7 @@ while shouldTrain:
 
     for j in range(i, i + BATCH_SIZE):
       #progress bar
-      percentComplete = int(float(j) / len(trainImages) * 100)
+      percentComplete = int(j / len(trainImages) * 100)
 
       print("-" * percentComplete + " " + str(percentComplete) + "%", end="\r")
 
@@ -118,22 +118,23 @@ while shouldTrain:
   correct = 0
   wrong = 0
   
-  for i in range(len(indexes)):
-    output = numpy.add(numpy.matmul(layerweights[0], trainImages[indexes[i]]), layerbiases[0])
+  for num in indexes:
+    curImage = numpy.transpose(numpy.asmatrix(trainImages[num]))
+    output = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
     for k in range(1, len(LAYER_ARRAY)):
       output = numpy.add(numpy.matmul(layerweights[k], sigmoid(output)), layerbiases[k])
     guess = sigmoid(output).argmax()
-    if (guess == trainLabels[indexes[i]]):
+    if (guess == trainLabels[num]):
       correct += 1
     else:
       wrong += 1
       
   #if the accuracy was achieved or if we have taken over the maximum number of times, terminate
-  if (float(correct)/(correct + wrong) > TARGET_ACCURACY or numEpochs >= MAXIMUM_EPOCHS):
+  if (correct/(correct + wrong) > TARGET_ACCURACY or numEpochs >= MAXIMUM_EPOCHS):
     shouldTrain = False
     print("Target accuracy achieved or max time reached")
   else:
-    print("Target accuracy not achieved")
+    print("Target accuracy not achieved (" + str(correct/(correct+wrong)) + " < " + str(TARGET_ACCURACY) + ")")
 
 #testing
 correct = 0
