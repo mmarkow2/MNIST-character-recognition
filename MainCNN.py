@@ -59,7 +59,8 @@ shouldTrain = True
 numEpochs = 0
 
 while shouldTrain:
-  for i in range(0, len(trainImages), BATCH_SIZE):
+  order = numpy.random.choice(trainImages.shape[0], size=trainImages.shape[0], replace=False)
+  for i in range(0, len(order) - BATCH_SIZE, BATCH_SIZE):
     #gradient sums (used for batches)
     biasGradientSUM = [0] * len(LAYER_ARRAY)
     weightGradientSUM = [0] * len(LAYER_ARRAY)
@@ -71,7 +72,7 @@ while shouldTrain:
       print("-" * percentComplete + " " + str(percentComplete) + "%", end="\r")
 
       #convert the current image to a column vector
-      curImage = numpy.transpose(numpy.asmatrix(trainImages[j]))
+      curImage = numpy.transpose(numpy.asmatrix(trainImages[order[j]]))
 
       #compute output
       activations[0] = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
@@ -112,7 +113,7 @@ while shouldTrain:
   print("Testing accuracy")
   
   #Get a subset of test images to test accuracy
-  indexes = numpy.random.randint(trainImages.shape[0], size=1000)
+  indexes = numpy.random.choice(trainImages.shape[0], size=1000, replace=False)
   
   #testing accuracy
   correct = 0
