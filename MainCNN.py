@@ -129,7 +129,7 @@ while shouldTrain:
       wrong += 1
       
   #if the accuracy was achieved or if we have taken over the maximum number of times, terminate
-  if ((correct/(correct + wrong)) > TARGET_ACCURACY or numEpochs >= MAXIMUM_EPOCHS):
+  if (float(correct)/(correct + wrong) > TARGET_ACCURACY or numEpochs >= MAXIMUM_EPOCHS):
     shouldTrain = False
     print("Target accuracy achieved or max time reached")
   else:
