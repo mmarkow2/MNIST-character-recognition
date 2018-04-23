@@ -4,15 +4,17 @@ from scipy.special import expit
 
 # sigmoid(x) = 1 / (1 + e^(-x))
 def sigmoid(vector):
-  for i in range(len(vector)):
-    vector[i] = expit(vector[i])
-  return vector
+  result = numpy.copy(vector)
+  for i in range(len(result)):
+    result[i] = expit(result[i])
+  return result
 
 # sigmoidDerivative(x) = e^(-x) / (1 + e^(-x))^2
 def sigmoidDerivative(vector):
-  for i in range(len(vector)):
-    vector[i] = expit(vector[i]) * (1-expit(vector[i]))
-  return vector
+  result = numpy.copy(vector)
+  for i in range(len(result)):
+    result[i] = expit(result[i]) * (1-expit(result[i]))
+  return result
 
 mndata = MNIST('Data')
 
@@ -92,7 +94,8 @@ while shouldTrain:
           #backpropagate
           activationDerivatives[k] = numpy.matmul(numpy.transpose(layerweights[k + 1]), biasGradient[k + 1])
 
-        sigmoidDerivatives = sigmoidDerivative(activations[k])
+        #for an unknown reason, taking the derivatives of the activations before passing it into the derivative improves the accuracy
+        sigmoidDerivatives = sigmoidDerivative(sigmoid(activations[k]))
         biasGradient[k] = numpy.multiply(activationDerivatives[k], sigmoidDerivatives[k])
         if (k == 0):
           weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(sigmoid(curImage)))
