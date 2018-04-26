@@ -5,14 +5,14 @@ from scipy.special import expit
 # sigmoid(x) = 1 / (1 + e^(-x))
 def sigmoid(vector):
   result = numpy.copy(vector)
-  for i in range(len(result)):
+  for i in range(result.shape[0]):
     result[i] = expit(result[i])
   return result
 
 # sigmoidDerivative(x) = e^(-x) / (1 + e^(-x))^2
 def sigmoidDerivative(vector):
   result = numpy.copy(vector)
-  for i in range(len(result)):
+  for i in range(result.shape[0]):
     result[i] = expit(result[i]) * (1-expit(result[i]))
   return result
 
@@ -26,11 +26,11 @@ MAXIMUM_EPOCHS = 5
 
 #load images
 trainImages, trainLabels = mndata.load_training()
-testImages, testLabels = mndata.load_testing()
+testImagesInput, testLabels = mndata.load_testing()
 
 #convert images to arrays in order to simplify computations
-trainImages = numpy.asarray(trainImages)
-testImages = numpy.asarray(testImages)
+trainImages = numpy.asmatrix(trainImages)
+testImages = numpy.asmatrix(testImagesInput)
 
 #Advanced classifier
 
@@ -41,7 +41,7 @@ layerweights = [0] * len(LAYER_ARRAY)
 layerbiases = [0] * len(LAYER_ARRAY)
 for num in LAYER_ARRAY:
   if layerNum == 0:
-    layerweights[layerNum] = 0.5 * numpy.random.randn(num, len(trainImages[0]))
+    layerweights[layerNum] = 0.5 * numpy.random.randn(num, trainImages.shape[1])
   else:
     layerweights[layerNum] = 0.5 * numpy.random.randn(num, layerweights[layerNum - 1].shape[0])
   layerbiases[layerNum] = numpy.zeros((num, 1))
@@ -69,12 +69,12 @@ while shouldTrain:
 
     for j in range(i, i + BATCH_SIZE):
       #progress bar
-      percentComplete = int(j / len(trainImages) * 100)
+      percentComplete = int(j / trainImages.shape[0] * 100)
 
       print("-" * percentComplete + " " + str(percentComplete) + "%", end="\r")
 
       #convert the current image to a column vector
-      curImage = numpy.transpose(numpy.asmatrix(trainImages[order[j]]))
+      curImage = numpy.transpose(trainImages[order[j]])
 
       #compute output
       activations[0] = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
@@ -123,7 +123,7 @@ while shouldTrain:
   wrong = 0
   
   for num in indexes:
-    curImage = numpy.transpose(numpy.asmatrix(trainImages[num]))
+    curImage = numpy.transpose(trainImages[num])
     output = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
     for k in range(1, len(LAYER_ARRAY)):
       output = numpy.add(numpy.matmul(layerweights[k], sigmoid(output)), layerbiases[k])
@@ -144,9 +144,9 @@ while shouldTrain:
 correct = 0
 wrong = 0
 
-for i in range(len(testImages)):
+for i in range(testImages.shape[0]):
   #convert the current image to a column vector
-  curImage = numpy.transpose(numpy.asmatrix(testImages[i]))
+  curImage = numpy.transpose(testImages[i])
   
   #compute output
   output = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
@@ -156,7 +156,7 @@ for i in range(len(testImages)):
   guess = sigmoid(output).argmax()
   
   #display number and guess
-  print(mndata.display(testImages[i]))
+  print(mndata.display(testImagesInput[i]))
   print("Guess: ")
   print(guess)
     
