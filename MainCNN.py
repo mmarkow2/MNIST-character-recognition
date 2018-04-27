@@ -74,7 +74,7 @@ while shouldTrain:
       print("-" * percentComplete + " " + str(percentComplete) + "%", end="\r")
 
       #convert the current image to a column vector
-      curImage = numpy.transpose(trainImages[order[j]])
+      curImage = numpy.transpose(trainImages[order[j]]) / 255
 
       #compute output
       activations[0] = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
@@ -123,7 +123,7 @@ while shouldTrain:
   wrong = 0
   
   for num in indexes:
-    curImage = numpy.transpose(trainImages[num])
+    curImage = numpy.transpose(trainImages[num]) / 255
     output = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
     for k in range(1, len(LAYER_ARRAY)):
       output = numpy.add(numpy.matmul(layerweights[k], sigmoid(output)), layerbiases[k])
@@ -146,7 +146,7 @@ wrong = 0
 
 for i in range(testImages.shape[0]):
   #convert the current image to a column vector
-  curImage = numpy.transpose(testImages[i])
+  curImage = numpy.transpose(testImages[i]) / 255
   
   #compute output
   output = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
