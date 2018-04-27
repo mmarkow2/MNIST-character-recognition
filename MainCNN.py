@@ -98,7 +98,7 @@ while shouldTrain:
         sigmoidDerivatives = sigmoidDerivative(sigmoid(activations[k]))
         biasGradient[k] = numpy.multiply(activationDerivatives[k], sigmoidDerivatives[k])
         if (k == 0):
-          weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(sigmoid(curImage)))
+          weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(curImage))
         else:
           weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(sigmoid(activations[k-1])))
 
