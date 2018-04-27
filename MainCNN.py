@@ -96,7 +96,7 @@ while shouldTrain:
 
         #for an unknown reason, taking the derivatives of the activations before passing it into the derivative improves the accuracy
         sigmoidDerivatives = sigmoidDerivative(sigmoid(activations[k]))
-        biasGradient[k] = numpy.multiply(activationDerivatives[k], sigmoidDerivatives[k])
+        biasGradient[k] = numpy.multiply(activationDerivatives[k], sigmoidDerivatives)
         if (k == 0):
           weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(curImage))
         else:
