@@ -1,19 +1,19 @@
 from mnist import MNIST
 import numpy
-from scipy.special import expit
 
-# sigmoid(x) = 1 / (1 + e^(-x))
-def sigmoid(vector):
+def ReLU(vector):
   result = numpy.copy(vector)
   for i in range(result.shape[0]):
-    result[i] = expit(result[i])
+    result[i] = max(0, result[i])
   return result
 
-# sigmoidDerivative(x) = e^(-x) / (1 + e^(-x))^2
-def sigmoidDerivative(vector):
+def ReLUDerivative(vector):
   result = numpy.copy(vector)
   for i in range(result.shape[0]):
-    result[i] = expit(result[i]) * (1-expit(result[i]))
+    if (result[i] > 0):
+      result[i] = 1
+    else:
+      result[i] = 0
   return result
 
 mndata = MNIST('Data')
@@ -21,7 +21,7 @@ mndata = MNIST('Data')
 LEARNING_RATE = 0.02
 BATCH_SIZE = 32
 LAYER_ARRAY = [500, 150, 10]
-TARGET_ACCURACY = 0.90
+TARGET_ACCURACY = 0.95
 MAXIMUM_EPOCHS = 5
 
 #load images
@@ -41,9 +41,9 @@ layerweights = [0] * len(LAYER_ARRAY)
 layerbiases = [0] * len(LAYER_ARRAY)
 for num in LAYER_ARRAY:
   if layerNum == 0:
-    layerweights[layerNum] = 0.5 * numpy.random.randn(num, trainImages.shape[1])
+    layerweights[layerNum] = 0.01 * numpy.random.randn(num, trainImages.shape[1])
   else:
-    layerweights[layerNum] = 0.5 * numpy.random.randn(num, layerweights[layerNum - 1].shape[0])
+    layerweights[layerNum] = 0.01 * numpy.random.randn(num, layerweights[layerNum - 1].shape[0])
   layerbiases[layerNum] = numpy.zeros((num, 1))
   layerNum = layerNum + 1
 
@@ -79,7 +79,7 @@ while shouldTrain:
       #compute output
       activations[0] = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
       for k in range(1, len(LAYER_ARRAY)):
-        activations[k] = numpy.add(numpy.matmul(layerweights[k], sigmoid(activations[k - 1])), layerbiases[k])
+        activations[k] = numpy.add(numpy.matmul(layerweights[k], ReLU(activations[k - 1])), layerbiases[k])
 
       #expected output (all elements 0 except the correct output)
       outputExpected = numpy.zeros((LAYER_ARRAY[len(LAYER_ARRAY) - 1], 1))
@@ -89,17 +89,17 @@ while shouldTrain:
         #compute the gradient of the previous layer's weights
         if k == len(LAYER_ARRAY) - 1:
           #compute the expected minus the output
-          activationDerivatives[k] = numpy.subtract(sigmoid(activations[k]), outputExpected)
+          activationDerivatives[k] = numpy.subtract(ReLU(activations[k]), outputExpected)
         else:
           #backpropagate
           activationDerivatives[k] = numpy.matmul(numpy.transpose(layerweights[k + 1]), biasGradient[k + 1])
 
-        sigmoidDerivatives = sigmoidDerivative(activations[k])
-        biasGradient[k] = numpy.multiply(activationDerivatives[k], sigmoidDerivatives)
+        ReLUDerivatives = ReLUDerivative(activations[k])
+        biasGradient[k] = numpy.multiply(activationDerivatives[k], ReLUDerivatives)
         if (k == 0):
           weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(curImage))
         else:
-          weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(sigmoid(activations[k-1])))
+          weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(ReLU(activations[k-1])))
 
         #sum up the gradient
         biasGradientSUM[k] = biasGradientSUM[k] + biasGradient[k]
@@ -125,8 +125,8 @@ while shouldTrain:
     curImage = numpy.transpose(trainImages[num])
     output = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
     for k in range(1, len(LAYER_ARRAY)):
-      output = numpy.add(numpy.matmul(layerweights[k], sigmoid(output)), layerbiases[k])
-    guess = sigmoid(output).argmax()
+      output = numpy.add(numpy.matmul(layerweights[k], ReLU(output)), layerbiases[k])
+    guess = ReLU(output).argmax()
     if (guess == trainLabels[num]):
       correct += 1
     else:
@@ -150,9 +150,9 @@ for i in range(testImages.shape[0]):
   #compute output
   output = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
   for k in range(1, len(LAYER_ARRAY)):
-    output = numpy.add(numpy.matmul(layerweights[k], sigmoid(output)), layerbiases[k])
+    output = numpy.add(numpy.matmul(layerweights[k], ReLU(output)), layerbiases[k])
   
-  guess = sigmoid(output).argmax()
+  guess = ReLU(output).argmax()
   
   #display number and guess
   print(mndata.display(testImagesInput[i]))
