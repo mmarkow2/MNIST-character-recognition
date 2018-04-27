@@ -94,8 +94,7 @@ while shouldTrain:
           #backpropagate
           activationDerivatives[k] = numpy.matmul(numpy.transpose(layerweights[k + 1]), biasGradient[k + 1])
 
-        #for an unknown reason, taking the derivatives of the activations before passing it into the derivative improves the accuracy
-        sigmoidDerivatives = sigmoidDerivative(sigmoid(activations[k]))
+        sigmoidDerivatives = sigmoidDerivative(activations[k])
         biasGradient[k] = numpy.multiply(activationDerivatives[k], sigmoidDerivatives)
         if (k == 0):
           weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(curImage))
